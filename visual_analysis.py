@@ -17,7 +17,7 @@ class IntResNet(ResNet): #subclass of ResNet
         num_blocks_per_layer = [2, 2, 2, 2]
         super().__init__(BasicBlock, num_blocks_per_layer)
         
-        last_layer = "layer4" #stop at the layer before fc
+        last_layer = "avgpool" #stop at the layer before fc
         self._layers = []
         for l in list(self._modules.keys()):
             self._layers.append(l)
@@ -75,23 +75,47 @@ def get_embedding(input_batch):
 
 
 import glob
+import shutil
+import random
 
 path = "data/dataset_image/dataset_image/*"
 image_tensors = []
+labels = []
 count = 0
-for fname in glob.glob(path):
-  image_tensor = preprocess_image(fname)
-  if image_tensor != None:
-        image_tensors.append(image_tensor)
-        
-  count +=1
-  if count%1000 == 0:
-    print(count)
-  if count == 2000: #first 6k
-    break
+fnames = glob.glob(path)
+random.shuffle(fnames)
+
+train_file = open("../data-of-multimodal-sarcasm-detection/text/train.txt", "r")
+train_list = {}
+for line in train_file.readlines():
+    train_list[line[2:20]] = int(line[-3])
+
+for fname in fnames:
+    img_id = (fname.split('/')[-1])[:-4]
+
+    if img_id in train_list:
+        image_tensor = preprocess_image(fname)
+        if image_tensor != None:
+            image_tensors.append(image_tensor)
+            labels.append(train_list[img_id])
+
+            # shutil.copyfile(fname, "data/subset_raw/"+img_id+".jpg")
+
+            count +=1
+            if count%1000 == 0:
+                print(count)
+            if count == 2000:
+                break
 
 X = torch.cat(image_tensors, dim=0)
 print(X.shape)
+
+import numpy as np
+f_labels = open("data/subset/labels.npy", "wb")
+labels_numpy = np.array(labels)
+print(labels_numpy.shape)
+np.save(f_labels, labels_numpy)
+
 
 batch_size = 16
 embedding_list = []
@@ -104,4 +128,5 @@ for i in range(0, len(X), batch_size):
 embeddings = torch.cat(embedding_list, dim=0)
 print(embeddings.shape)
 
-torch.save(embeddings, "embeddings.pt")
+f_embeddings = open("data/subset/embeddings.npy", "wb")
+# np.save(f_embeddings, embeddings.numpy())
