@@ -17,7 +17,7 @@ class IntResNet(ResNet): #subclass of ResNet
         num_blocks_per_layer = [2, 2, 2, 2]
         super().__init__(BasicBlock, num_blocks_per_layer)
         
-        last_layer = "avgpool" #stop at the layer before fc
+        last_layer = "avgpool" #"layer4" #stop at the layer before fc
         self._layers = []
         for l in list(self._modules.keys()):
             self._layers.append(l)
@@ -111,10 +111,10 @@ X = torch.cat(image_tensors, dim=0)
 print(X.shape)
 
 import numpy as np
-f_labels = open("data/subset/labels.npy", "wb")
+# f_labels = open("data/subset/labels.npy", "wb")
 labels_numpy = np.array(labels)
 print(labels_numpy.shape)
-np.save(f_labels, labels_numpy)
+# np.save(f_labels, labels_numpy)
 
 
 batch_size = 16
@@ -128,5 +128,5 @@ for i in range(0, len(X), batch_size):
 embeddings = torch.cat(embedding_list, dim=0)
 print(embeddings.shape)
 
-f_embeddings = open("data/subset/embeddings.npy", "wb")
-# np.save(f_embeddings, embeddings.numpy())
+f_embeddings = open("data/subset/embeddings_postpool.npy", "wb")
+np.save(f_embeddings, embeddings.numpy())
