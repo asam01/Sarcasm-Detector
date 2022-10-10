@@ -86,26 +86,34 @@ fnames = glob.glob(path)
 random.shuffle(fnames)
 
 train_file = open("../data-of-multimodal-sarcasm-detection/text/train.txt", "r")
-train_list = {}
+train_dict = {}
 for line in train_file.readlines():
-    train_list[line[2:20]] = int(line[-3])
+    train_dict[line[2:20]] = int(line[-3])
+train_file.close()
 
+subset = []
 for fname in fnames:
     img_id = (fname.split('/')[-1])[:-4]
 
-    if img_id in train_list:
+    if img_id in train_dict:
         image_tensor = preprocess_image(fname)
         if image_tensor != None:
             image_tensors.append(image_tensor)
-            labels.append(train_list[img_id])
+            labels.append(train_dict[img_id])
 
             # shutil.copyfile(fname, "data/subset_raw/"+img_id+".jpg")
+            subset.append(img_id)
 
             count +=1
             if count%1000 == 0:
                 print(count)
             if count == 2000:
                 break
+
+# import json
+# f_subset = open("data/subset/img_ids.json", "w")
+# json.dump(subset, f_subset)
+f_subset.close()
 
 X = torch.cat(image_tensors, dim=0)
 print(X.shape)
@@ -115,6 +123,7 @@ import numpy as np
 labels_numpy = np.array(labels)
 print(labels_numpy.shape)
 # np.save(f_labels, labels_numpy)
+# f_labels.close()
 
 
 batch_size = 16
@@ -128,5 +137,6 @@ for i in range(0, len(X), batch_size):
 embeddings = torch.cat(embedding_list, dim=0)
 print(embeddings.shape)
 
-f_embeddings = open("data/subset/embeddings_postpool.npy", "wb")
-np.save(f_embeddings, embeddings.numpy())
+# f_embeddings = open("data/subset/embeddings_postpool.npy", "wb")
+# np.save(f_embeddings, embeddings.numpy())
+# f_embeddings.close()

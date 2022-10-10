@@ -186,12 +186,13 @@ if __name__ == "__main__":
     
     # X = np.loadtxt("mnist2500_X.txt")
     
-    X = np.load("data/subset/embeddings.npy")
+    X = np.load("data/subset/text_embeddings.npy")
     X = X.reshape((len(X), -1))
     print(X.shape)
 
 
     labels = np.load("data/subset/labels.npy")
+    labels = labels[:1000]
     print(labels.shape)
 
     Y = tsne(X, 2, 50, 20.0)
