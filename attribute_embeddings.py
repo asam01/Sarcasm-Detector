@@ -51,7 +51,7 @@ def get_glove_embedding(text):
 import json
 f_subset = open("data/subset/img_ids.json", "r")
 subset = json.load(f_subset)
-print(len(subset))
+# print(len(subset))
 
 attribute_file = open("../data-of-multimodal-sarcasm-detection/extract/extract_all.txt", "r")
 embeddings = []
