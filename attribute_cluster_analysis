@@ -1,0 +1,41 @@
+import json
+
+f_subset = open("data/subset/img_ids.json", "r")
+subset = json.load(f_subset)
+
+f_clusters = open("data/subset/image_cluster_indexes.json", "r")
+clusters = json.load(f_clusters)
+img_id_to_cluster = {}
+
+for k, v in clusters.items():
+    for img_id_index in v:
+        img_id = subset[img_id_index]
+        img_id_to_cluster[img_id] = k
+
+f_attributes = open("../data-of-multimodal-sarcasm-detection/extract/extract_all.txt", "r")
+common_attributes = {}
+counter = 0
+for line in f_attributes.readlines():
+    img_id = line[2:20]
+    if img_id in subset:
+        text = [word[1:-1] for word in (line[:-2].split(', '))[1:]]
+        cluster = img_id_to_cluster[img_id]
+        
+        if cluster not in common_attributes:
+            common_attributes[cluster] = {}
+        for word in text:
+            if word in common_attributes[cluster]:
+                common_attributes[cluster][word] += 1
+            else:
+                common_attributes[cluster][word] = 1
+    
+        counter +=1
+        if counter %1000 == 0:
+            print(counter)
+
+for cluster, d in common_attributes.items():
+    print("cluster: ", cluster)
+    cluster_list = list(d.items())
+    cluster_list.sort(key = lambda x: -1*x[1])
+    print(cluster_list[:10])
+    # print(list(sorted.items())[:10])
