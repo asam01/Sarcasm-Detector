@@ -1,0 +1,1 @@
+We cloned the baseline model for the hierarchical fusion model to get results. We did this on a cluster and have moved some files we wrote as well as outputs to this folder for continuity and grading purposes.
